@@ -195,10 +195,13 @@ function interval(;left::Union{T, Nothing} = nothing, right::Union{T, Nothing} =
     ru = isnothing(right)
     lc = ((closed == :left) || (closed == :both))
     rc = ((closed == :right) || (closed == :both))
-    if (lu && ru) || (right < left) || ((right == left) && !lc && !rc)
+    if (lu && ru)
         return EmptyInterval(T)
     end
     if !lu && !ru
+        if (right < left) || ((right == left) && !lc && !rc)
+            return EmptyInterval(T)
+        end
         if (lc || rc) && left == right
             return SingletonInterval(left)
         end
@@ -298,7 +301,7 @@ function intersect(a::AbstractInterval{T}, b::AbstractInterval{T}) where T
     interval(left=left, right=right, closed=_closebound(lc, rc))
 end
 
-export interval
+export interval, disjoint
 export in, ==, isempty, show, union, intersect, left, right, boundedleft, boundedright, closedleft, closedright, unboundedleft, unboundedright, openleft, openright, <, <=, >, >=
 
 end # module
