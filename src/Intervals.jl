@@ -316,10 +316,13 @@ export interval, disjoint
 # operators
 export in, ==, <, <=, >, >=
 # queries
-export isempty, isbounded, issingleton
+# TODO: adjacent
+export isempty, isbounded, issingleton, overlaps
 # accessors
 export left, right, boundedleft, boundedright, closedleft, closedright, unboundedleft, unboundedright, openleft, openright
 # operations
+# TODO: complement
+# TODO: difference
 export show, union, intersect
 
 end # module
