@@ -2,12 +2,7 @@ module Intervals
 
 import Base: in, ==, <, <=, >, >=, isempty, show, union, intersect, empty
 
-"""
-AbstractInterval{T}
-
-A base class for interval types with limits of type `T`.
-"""
-abstract type AbstractInterval{T} end
+include("types.jl")
 
 function left(::AbstractInterval) end
 function right(::AbstractInterval) end
@@ -233,7 +228,7 @@ struct DisjointInterval{T} <: AbstractInterval{T}
     ivs::Vector{AbstractInterval{T}}
 end
 
-function simplify(a::AbstractInterval{T}, b::AbstractInterval{T}) where T
+function _simplify(a::AbstractInterval{T}, b::AbstractInterval{T}) where T
     !overlaps(a, b) && return sort!([a, b])
     la = left(a)
     lb = left(b)
@@ -255,7 +250,7 @@ function disjoint(ivs::AbstractInterval{T}...) where T
     out = Vector{AbstractInterval{T}}()
     while !isempty(sorted)
         b = popfirst!(sorted)
-        s = simplify(a, b)
+        s = _simplify(a, b)
         if length(s) == 1
             a = s[1]
             continue
