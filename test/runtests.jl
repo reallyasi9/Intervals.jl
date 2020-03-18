@@ -2,7 +2,7 @@ using Intervals
 using Test
 
 @testset "Intervals.jl" begin
-    @testset "interval constructor" begin
+    @testset "constructor and accessors" begin
         let iv = interval(left=0, right=1)
             @test left(iv) == 0
             @test right(iv) == 1
@@ -10,7 +10,6 @@ using Test
             @test openright(iv)
             @test boundedleft(iv)
             @test boundedright(iv)
-            @test typeof(iv) == Intervals.Interval{Int}
         end
 
         let iv = interval(left=0, right=1, closed=:neither)
@@ -20,7 +19,6 @@ using Test
             @test openright(iv)
             @test boundedleft(iv)
             @test boundedright(iv)
-            @test typeof(iv) == Intervals.Interval{Int}
         end
 
         let iv = interval(left=0, right=1, closed=:left)
@@ -30,7 +28,6 @@ using Test
             @test openright(iv)
             @test boundedleft(iv)
             @test boundedright(iv)
-            @test typeof(iv) == Intervals.Interval{Int}
         end
 
         let iv = interval(left=0, right=1, closed=:right)
@@ -40,7 +37,6 @@ using Test
             @test closedright(iv)
             @test boundedleft(iv)
             @test boundedright(iv)
-            @test typeof(iv) == Intervals.Interval{Int}
         end
 
         let iv = interval(left=0, right=1, closed=:both)
@@ -50,7 +46,6 @@ using Test
             @test closedright(iv)
             @test boundedleft(iv)
             @test boundedright(iv)
-            @test typeof(iv) == Intervals.Interval{Int}
         end
 
         @test_throws ArgumentError interval(left=0, right=1, closed=:bananas)
@@ -62,7 +57,6 @@ using Test
             @test openright(iv)
             @test unboundedleft(iv)
             @test boundedright(iv)
-            @test typeof(iv) == Intervals.LeftUnboundedInterval{Int}
         end
 
         let iv = interval(right=0, closed=:right)
@@ -72,7 +66,6 @@ using Test
             @test closedright(iv)
             @test unboundedleft(iv)
             @test boundedright(iv)
-            @test typeof(iv) == Intervals.LeftUnboundedInterval{Int}
         end
 
         let iv = interval(right=0, closed=:both)
@@ -82,7 +75,6 @@ using Test
             @test closedright(iv)
             @test unboundedleft(iv)
             @test boundedright(iv)
-            @test typeof(iv) == Intervals.LeftUnboundedInterval{Int}
         end
 
         let iv = interval(left=0)
@@ -92,7 +84,6 @@ using Test
             @test openright(iv)
             @test boundedleft(iv)
             @test unboundedright(iv)
-            @test typeof(iv) == Intervals.RightUnboundedInterval{Int}
         end
 
         let iv = interval(left=0, closed=:left)
@@ -102,7 +93,6 @@ using Test
             @test openright(iv)
             @test boundedleft(iv)
             @test unboundedright(iv)
-            @test typeof(iv) == Intervals.RightUnboundedInterval{Int}
         end
         
         let iv = interval(left=0, closed=:both)
@@ -112,7 +102,6 @@ using Test
             @test openright(iv)
             @test boundedleft(iv)
             @test unboundedright(iv)
-            @test typeof(iv) == Intervals.RightUnboundedInterval{Int}
         end
 
         let iv = interval(left=0, right=0)
@@ -122,7 +111,6 @@ using Test
             @test openright(iv)
             @test unboundedleft(iv)
             @test unboundedright(iv)
-            @test typeof(iv) == Intervals.EmptyInterval{Int}
         end
 
         let iv = interval(left=0, right=0, closed=:both)
@@ -132,7 +120,6 @@ using Test
             @test closedright(iv)
             @test boundedleft(iv)
             @test boundedright(iv)
-            @test typeof(iv) == Intervals.SingletonInterval{Int}
         end
     end
 end

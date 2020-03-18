@@ -155,7 +155,7 @@ in(::Any, ::UnboundedInterval) = true
 """
 interval(left, right, closed=:neither)
 
-Constructor for various `Interval` types.  The type returned depends on the arguments.
+Constructor for various `AbstractInterval` types.  The type returned is always a `DisjointInterval`.
 
 Arguments
 =========
@@ -175,20 +175,20 @@ function interval(;left::Union{T, Nothing} = nothing, right::Union{T, Nothing} =
     lc = ((closed == :left) || (closed == :both))
     rc = ((closed == :right) || (closed == :both))
     if (lu && ru)
-        return EmptyInterval(T)
+        return DisjointInterval([EmptyInterval{T}()])
     end
     if !lu && !ru
         if (right < left) || ((right == left) && !lc && !rc)
-            return EmptyInterval(T)
+            return DisjointInterval([EmptyInterval{T}()])
         end
         if (lc || rc) && left == right
-            return SingletonInterval(left)
+            return DisjointInterval([SingletonInterval(left)])
         end
-        return Interval(left, right, lc, rc)
+        return DisjointInterval([Interval(left, right, lc, rc)])
     elseif lu
-        return LeftUnboundedInterval(right, rc)
+        return DisjointInterval([LeftUnboundedInterval(right, rc)])
     else
-        return RightUnboundedInterval(left, lc)
+        return DisjointInterval([RightUnboundedInterval(left, lc)])
     end
 end
 
@@ -200,10 +200,6 @@ end
 function _boundmax(a, b)
     (isnothing(a) || isnothing(b)) && return nothing
     max(a, b)
-end
-
-struct DisjointInterval{T} <: AbstractInterval{T}
-    ivs::Vector{AbstractInterval{T}}
 end
 
 function _simplify(a::AbstractInterval{T}, b::AbstractInterval{T}) where T

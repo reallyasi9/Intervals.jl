@@ -82,3 +82,13 @@ Like `EmptyInterval`, `UnboundedInterval` objects have some special and sometime
 5. `disjoint(unbounded, other) == unbounded`
 """
 struct UnboundedInterval{T} <: AbstractInterval{T} end
+
+const IntervalArray{T} = Array{<:AbstractInterval{T}} where T
+"""
+DisjointInterval
+
+A collection of one or more strictly disjoint intervals.
+"""
+struct DisjointInterval{T} <: AbstractInterval{T}
+    ivs::IntervalArray{T}
+end
