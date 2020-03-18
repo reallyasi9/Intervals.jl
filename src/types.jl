@@ -67,3 +67,18 @@ struct RightUnboundedInterval{T} <: AbstractInterval{T}
     left_closed::Bool
 end
 
+"""
+UnboundedInterval
+
+A type that describes a trivial interval unbounded from both sides.
+
+You cannot directly construct an unbounded interval from the `interval` command.  This special type represents the outcome of certain operations, like `complement(empty)` and `leftunbounded ∪ rightunbounded` with overlapping limits.
+
+Like `EmptyInterval`, `UnboundedInterval` objects have some special and sometimes confusing properties:
+1. They are typed with type `T`.  Even though `UnboundedInterval` describes basically an unbounded set, it still must be a valid interval on a particular domain.
+2. `left(unbounded) === right(unbounded) === nothing`
+3. `closedleft(unbounded) == closedright(unbounded) == false` and `boundedleft(unbounded) == boundedright(unbounded) == false`
+4. `unbounded ∪ other == unbounded` and `unbounded ∩ other == other`
+5. `disjoint(unbounded, other) == unbounded`
+"""
+struct UnboundedInterval{T} <: AbstractInterval{T} end

@@ -27,12 +27,16 @@ closed(a) = _closebound(closedleft(a), closedright(a))
 bounded(a) = _closebound(boundedleft(a), boundedright(a))
 
 function (==)(a::AbstractInterval, b::AbstractInterval)
-    return (left(a) == left(b)) &&
-           (right(a) == right(b)) &&
-           (closedleft(a) == closedleft(b)) && 
-           (closedright(a) == closedright(b)) &&
-           (boundedleft(a) == boundedleft(b)) &&
-           (boundedright(a) == boundedright(b))
+    # empty and unbounded intervals might look the same, but they are not.
+    if isempty(a) && isempty(b)
+        return true
+    end
+    (left(a) == left(b)) &&
+        (right(a) == right(b)) &&
+        (closedleft(a) == closedleft(b)) && 
+        (closedright(a) == closedright(b)) &&
+        (boundedleft(a) == boundedleft(b)) &&
+        (boundedright(a) == boundedright(b))
 end
 
 function (<)(a::AbstractInterval, b::AbstractInterval)
@@ -137,6 +141,16 @@ boundedright(a::RightUnboundedInterval) = false
 (>)(::Any, ::RightUnboundedInterval) = false
 isbounded(::RightUnboundedInterval) = false
 
+closedleft(::UnboundedInterval) = false
+closedright(::UnboundedInterval) = false
+boundedleft(::UnboundedInterval) = false
+boundedright(::UnboundedInterval) = false
+(>)(::UnboundedInterval, ::Any) = false
+(>)(::Any, ::UnboundedInterval) = false
+(<)(::UnboundedInterval, ::Any) = false
+(<)(::Any, ::UnboundedInterval) = false
+isbounded(::UnboundedInterval) = false
+in(::Any, ::UnboundedInterval) = true
 
 """
 interval(left, right, closed=:neither)
@@ -208,6 +222,20 @@ function _simplify(a::AbstractInterval{T}, b::AbstractInterval{T}) where T
     [interval(left=left, right=right, closed=_closebound(lc, rc))]
 end
 
+_simplify(::AbstractInterval{T}, b::UnboundedInterval{T}) where T = [b]
+_simplify(a::UnboundedInterval{T}, ::AbstractInterval{T}) where T = [a]
+_simplify(a::AbstractInterval{T}, ::EmptyInterval{T}) where T = [a]
+_simplify(::EmptyInterval{T}, b::AbstractInterval{T}) where T = [b]
+function _simplify(a::LeftUnboundedInterval{T}, b::RightUnboundedInterval{T}) where T
+    overlaps(a, b) && return [UnboundedInterval{T}()]
+    [a, b]
+end
+function _simplify(a::RightUnboundedInterval{T}, b::LeftUnboundedInterval{T}) where T
+    overlaps(a, b) && return [UnboundedInterval{T}()]
+    return [b, a]
+end
+# TODO: simplify disjoint Intervals
+
 function disjoint(ivs::AbstractInterval{T}...) where T
     sorted = sort!(collect(ivs), by=x -> ismissing(left(x)) ? typemin(T) : left(x))
     a = popfirst!(sorted)
@@ -223,6 +251,11 @@ function disjoint(ivs::AbstractInterval{T}...) where T
             a = s[2]
         end
     end
+
+    if isempty(out)
+        return a
+    end
+
     push!(out, a)
     DisjointInterval(out)
 end
@@ -242,12 +275,20 @@ isdisjoint(a::DisjointInterval) = length(a.ivs) > 1
 union(a::AbstractInterval{T}, ::EmptyInterval{T}) where T = a
 union(::EmptyInterval{T}, b::AbstractInterval{T}) where T = b
 
+# Union between an unbounded interval and anything is unbounded
+union(::AbstractInterval{T}, b::UnboundedInterval{T}) where T = b
+union(a::UnboundedInterval{T}, ::AbstractInterval{T}) where T = a
+
 # Everything else
 union(a::AbstractInterval{T}, b::AbstractInterval{T}) where T = disjoint(a, b)
 
 # Intersection between an empty and anything is empty.
 intersect(::EmptyInterval{T}, ::AbstractInterval{T}) where T = EmptyInterval(T)
 intersect(::AbstractArray{T}, ::EmptyInterval{T}) where T = EmptyInterval(T)
+
+# Intersection between unbounded and anything is that thing.
+intersect(::UnboundedInterval{T}, b::AbstractInterval{T}) where T = b
+intersect(a::AbstractArray{T}, ::UnboundedInterval{T}) where T = a
 
 # Intersection between a singleton and anything is either the singleton or empty.
 intersect(a::AbstractInterval{T}, b::SingletonInterval{T}) where T = overlaps(a, b) ? b : EmptyInterval(T)
