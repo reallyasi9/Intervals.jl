@@ -45,7 +45,6 @@ boundedright(::UnboundedInterval) = false
 boundedright(a::DisjointInterval) = boundedright(last(a.ivs))
 
 
-
 openleft(a) = !closedleft(a)
 openright(a) = !closedright(a)
 unboundedleft(a) = !boundedleft(a)
@@ -53,3 +52,13 @@ unboundedright(a) = !boundedright(a)
 
 natomic(::AtomicInterval) = 1
 natomic(a::DisjointInterval) = length(a.ivs)
+
+function _closebound(l, r)
+    l && r && return :both
+    l && return :left
+    r && return :right
+    return :neither
+end
+
+closed(a) = _closebound(closedleft(a), closedright(a))
+bounded(a) = _closebound(boundedleft(a), boundedright(a))

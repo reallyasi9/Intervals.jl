@@ -5,18 +5,10 @@ import Base: in, ==, <, <=, >, >=, isempty, show, union, intersect, empty
 include("types.jl")
 include("constructors.jl")
 include("accessors.jl")
+include("queries.jl")
 
-function _closebound(l, r)
-    l && r && return :both
-    l && return :left
-    r && return :right
-    return :neither
-end
 
-closed(a) = _closebound(closedleft(a), closedright(a))
-bounded(a) = _closebound(boundedleft(a), boundedright(a))
-
-function (==)(a::AbstractInterval, b::AbstractInterval)
+function (==)(a::AtomicInterval, b::AtomicInterval)
     # empty and unbounded intervals might look the same, but they are not.
     if isempty(a) && isempty(b)
         return true
@@ -65,10 +57,7 @@ function in(x, a::AbstractInterval)
     return (x <= a) && (x >= a)
 end
 
-isempty(::AbstractInterval) = false
-issingleton(::AbstractInterval) = false
-isbounded(::AbstractInterval) = true
-isdisjoint(::AbstractInterval) = false
+
 
 function show(io::IO, a::AbstractInterval)
     if isempty(a)
@@ -101,34 +90,28 @@ end
 (<=)(::Any, ::EmptyInterval) = false
 (>)(::Any, ::EmptyInterval) = false
 (>=)(::Any, ::EmptyInterval) = false
-isempty(::EmptyInterval) = true
-isbounded(::EmptyInterval) = false
+
 
 
 
 
 (<)(::LeftUnboundedInterval, ::Any) = true
 (<)(::Any, ::LeftUnboundedInterval) = false
-isbounded(::LeftUnboundedInterval) = false
+
 
 
 (>)(::RightUnboundedInterval, ::Any) = true
 (>)(::Any, ::RightUnboundedInterval) = false
-isbounded(::RightUnboundedInterval) = false
 
 
 (>)(::UnboundedInterval, ::Any) = false
 (>)(::Any, ::UnboundedInterval) = false
 (<)(::UnboundedInterval, ::Any) = false
 (<)(::Any, ::UnboundedInterval) = false
-isbounded(::UnboundedInterval) = false
 in(::Any, ::UnboundedInterval) = true
 
 
-issingleton(a::DisjointInterval) = length(a.ivs) == 1 && issingleton(first(a.ivs))
-isempty(a::DisjointInterval) = length(a.ivs) == 1 && isempty(first(a.ivs))
-isbounded(a::DisjointInterval) = isbounded(first(a.ivs)) && isbounded(last(a.ivs))
-isdisjoint(a::DisjointInterval) = length(a.ivs) > 1
+
 
 # Union between an empty interval and anything is that other thing.
 union(a::AbstractInterval{T}, ::EmptyInterval{T}) where T = a
@@ -175,10 +158,10 @@ export interval, disjoint
 # operators
 export in, ==, <, <=, >, >=
 # accessors
-export left, right, boundedleft, boundedright, closedleft, closedright, unboundedleft, unboundedright, openleft, openright, natomic
+export left, right, boundedleft, boundedright, closedleft, closedright, unboundedleft, unboundedright, openleft, openright, natomic, closed, bounded
 # queries
 # TODO: adjacent
-export isempty, isbounded, issingleton, overlaps, closed, bounded
+export isempty, isbounded, issingleton, overlaps
 # operations
 # TODO: complement
 # TODO: difference
