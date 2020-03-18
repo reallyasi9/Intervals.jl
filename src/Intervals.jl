@@ -95,33 +95,11 @@ function overlaps(a::AbstractInterval, b::AbstractInterval)
     return ((a <= b) && !(a < b)) || ((a >= b) && !(a > b))
 end
 
-"""
-Interval{T}
-
-A type describing the interval between two comparable limits of type `T`.
-    
-Limits have three requirements:
-1. They must be of the same type `T`.
-2. They must be less-than comparable (a defined `<` operator).
-3. They must be equals comparable (a defined `==` operator).
-
-`Interval` supports open, closed, and semi-open/semi-closed limits.
-"""
-struct Interval{T} <: AbstractInterval{T}
-    left::T
-    right::T
-    left_closed::Bool
-    right_closed::Bool
-end
 
 left(a::Interval) = a.left
 right(a::Interval) = a.right
 closedleft(a::Interval) = a.left_closed
 closedright(a::Interval) = a.right_closed
-
-struct EmptyInterval{T} <: AbstractInterval{T}
-    eltype::Type{T}
-end
 
 closedleft(::EmptyInterval) = false
 closedright(::EmptyInterval) = false
@@ -138,19 +116,10 @@ boundedright(::EmptyInterval) = false
 isempty(::EmptyInterval) = true
 isbounded(::EmptyInterval) = false
 
-struct SingletonInterval{T} <: AbstractInterval{T}
-    value::T
-end
-
 left(a::SingletonInterval) = a.value
 right(a::SingletonInterval) = a.value
 closedleft(a::SingletonInterval) = true
 closedright(a::SingletonInterval) = true
-
-struct LeftUnboundedInterval{T} <: AbstractInterval{T}
-    right::T
-    right_closed::Bool
-end
 
 right(a::LeftUnboundedInterval) = a.right
 closedleft(a::LeftUnboundedInterval) = false
@@ -159,11 +128,6 @@ boundedleft(a::LeftUnboundedInterval) = false
 (<)(::LeftUnboundedInterval, ::Any) = true
 (<)(::Any, ::LeftUnboundedInterval) = false
 isbounded(::LeftUnboundedInterval) = false
-
-struct RightUnboundedInterval{T} <: AbstractInterval{T}
-    left::T
-    left_closed::Bool
-end
 
 left(a::RightUnboundedInterval) = a.left
 closedleft(a::RightUnboundedInterval) = a.left_closed
