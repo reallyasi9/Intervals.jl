@@ -229,7 +229,7 @@ function _boundmax(a, b)
     max(a, b)
 end
 
-struct DisjointIntervals{T} <: AbstractInterval{T}
+struct DisjointInterval{T} <: AbstractInterval{T}
     ivs::Vector{AbstractInterval{T}}
 end
 
@@ -265,19 +265,19 @@ function disjoint(ivs::AbstractInterval{T}...) where T
         end
     end
     push!(out, a)
-    DisjointIntervals(out)
+    DisjointInterval(out)
 end
 
-left(a::DisjointIntervals) = left(first(a.ivs))
-right(a::DisjointIntervals) = right(last(a.ivs))
-closedleft(a::DisjointIntervals) = closedleft(first(a))
-closedright(a::DisjointIntervals) = closedright(last(a))
-boundedleft(a::DisjointIntervals) = boundedleft(first(a))
-boundedright(a::DisjointIntervals) = boundedright(last(a))
-issingleton(a::DisjointIntervals) = length(a.ivs) == 1 && issingleton(first(a.ivs))
-isempty(a::DisjointIntervals) = length(a.ivs) == 1 && isempty(first(a.ivs))
-isbounded(a::DisjointIntervals) = isbounded(first(a.ivs)) && isbounded(last(a.ivs))
-isdisjoint(a::DisjointIntervals) = length(a.ivs) > 1
+left(a::DisjointInterval) = left(first(a.ivs))
+right(a::DisjointInterval) = right(last(a.ivs))
+closedleft(a::DisjointInterval) = closedleft(first(a.ivs))
+closedright(a::DisjointInterval) = closedright(last(a.ivs))
+boundedleft(a::DisjointInterval) = boundedleft(first(a.ivs))
+boundedright(a::DisjointInterval) = boundedright(last(a.ivs))
+issingleton(a::DisjointInterval) = length(a.ivs) == 1 && issingleton(first(a.ivs))
+isempty(a::DisjointInterval) = length(a.ivs) == 1 && isempty(first(a.ivs))
+isbounded(a::DisjointInterval) = isbounded(first(a.ivs)) && isbounded(last(a.ivs))
+isdisjoint(a::DisjointInterval) = length(a.ivs) > 1
 
 # Union between an empty interval and anything is that other thing.
 union(a::AbstractInterval{T}, ::EmptyInterval{T}) where T = a
