@@ -3,6 +3,7 @@ module Intervals
 import Base: in, ==, <, <=, >, >=, isempty, show, union, intersect, empty
 
 include("types.jl")
+include("constructors.jl")
 
 function left(::AbstractInterval) end
 function right(::AbstractInterval) end
@@ -152,110 +153,6 @@ boundedright(::UnboundedInterval) = false
 isbounded(::UnboundedInterval) = false
 in(::Any, ::UnboundedInterval) = true
 
-"""
-interval(left, right, closed=:neither)
-
-Constructor for various `AbstractInterval` types.  The type returned is always a `DisjointInterval`.
-
-Arguments
-=========
-`left`, `right`: left and right limits of the interval.  Empty values will be considered
-    unbounded.  Unbounded limits are ignored and considered `-∞` (left) or `+∞` (right) for the
-    type of the limits in the sense that all values of type `T` will compare
-    greater than an unbounded left limit and less than an unbounded right limit,
-    except infinity itself (if `isfinite` is defined for the type).
-
-`closed`: whether the left, right, both, or neither limit is included in the interval.
-    Must be one of `:neither` (default), `:left`, `:right`, or `:both`.
-"""
-function interval(;left::Union{T, Nothing} = nothing, right::Union{T, Nothing} = nothing, closed::Symbol = :neither) where T
-    closed ∈ (:neither, :left, :right, :both) || throw(ArgumentError("'closed' must be one of (:neither, :left, :right, :both)"))
-    lu = isnothing(left)
-    ru = isnothing(right)
-    lc = ((closed == :left) || (closed == :both))
-    rc = ((closed == :right) || (closed == :both))
-    if (lu && ru)
-        return DisjointInterval([EmptyInterval{T}()])
-    end
-    if !lu && !ru
-        if (right < left) || ((right == left) && !lc && !rc)
-            return DisjointInterval([EmptyInterval{T}()])
-        end
-        if (lc || rc) && left == right
-            return DisjointInterval([SingletonInterval(left)])
-        end
-        return DisjointInterval([Interval(left, right, lc, rc)])
-    elseif lu
-        return DisjointInterval([LeftUnboundedInterval(right, rc)])
-    else
-        return DisjointInterval([RightUnboundedInterval(left, lc)])
-    end
-end
-
-function _boundmin(a, b)
-    (isnothing(a) || isnothing(b)) && return nothing
-    min(a, b)
-end
-
-function _boundmax(a, b)
-    (isnothing(a) || isnothing(b)) && return nothing
-    max(a, b)
-end
-
-function _simplify(a::AbstractInterval{T}, b::AbstractInterval{T}) where T
-    !overlaps(a, b) && return sort!([a, b])
-    la = left(a)
-    lb = left(b)
-    ra = right(a)
-    rb = right(b)
-
-    left = _boundmin(la, lb)
-    right = _boundmax(ra, rb)
-
-    lc = (la == lb) ? closedleft(a) | closedleft(b) : left == la ? closedleft(a) : closedleft(b)
-    rc = (ra == rb) ? closedright(a) | closedright(b) : right == ra ? closedright(a) : closedright(b)
-
-    [interval(left=left, right=right, closed=_closebound(lc, rc))]
-end
-
-_simplify(::AbstractInterval{T}, b::UnboundedInterval{T}) where T = [b]
-_simplify(a::UnboundedInterval{T}, ::AbstractInterval{T}) where T = [a]
-_simplify(a::AbstractInterval{T}, ::EmptyInterval{T}) where T = [a]
-_simplify(::EmptyInterval{T}, b::AbstractInterval{T}) where T = [b]
-function _simplify(a::LeftUnboundedInterval{T}, b::RightUnboundedInterval{T}) where T
-    overlaps(a, b) && return [UnboundedInterval{T}()]
-    [a, b]
-end
-function _simplify(a::RightUnboundedInterval{T}, b::LeftUnboundedInterval{T}) where T
-    overlaps(a, b) && return [UnboundedInterval{T}()]
-    return [b, a]
-end
-# TODO: simplify disjoint Intervals
-
-function disjoint(ivs::AbstractInterval{T}...) where T
-    sorted = sort!(collect(ivs), by=x -> ismissing(left(x)) ? typemin(T) : left(x))
-    a = popfirst!(sorted)
-    out = Vector{AbstractInterval{T}}()
-    while !isempty(sorted)
-        b = popfirst!(sorted)
-        s = _simplify(a, b)
-        if length(s) == 1
-            a = s[1]
-            continue
-        else
-            push!(out, s[1])
-            a = s[2]
-        end
-    end
-
-    if isempty(out)
-        return a
-    end
-
-    push!(out, a)
-    DisjointInterval(out)
-end
-
 left(a::DisjointInterval) = left(first(a.ivs))
 right(a::DisjointInterval) = right(last(a.ivs))
 closedleft(a::DisjointInterval) = closedleft(first(a.ivs))
@@ -315,7 +212,7 @@ export in, ==, <, <=, >, >=
 # TODO: adjacent
 export isempty, isbounded, issingleton, overlaps
 # accessors
-export left, right, boundedleft, boundedright, closedleft, closedright, unboundedleft, unboundedright, openleft, openright
+export left, right, boundedleft, boundedright, closedleft, closedright, unboundedleft, unboundedright, openleft, openright, natomic
 # operations
 # TODO: complement
 # TODO: difference

@@ -11,6 +11,13 @@ Note that the less-than comparable does not specify that the type necessarily so
 abstract type AbstractInterval{T} end
 
 """
+AtomicInterval
+
+A base class for intervals that are not disjoint.
+"""
+abstract type AtomicInterval{T} <: AbstractInterval{T} end
+
+"""
 EmptyInterval
 
 A type that describes trivial empty intervals.
@@ -22,7 +29,7 @@ A type that describes trivial empty intervals.
 4. `empty ∪ other == other` and `empty ∩ other == empty`
 5. `disjoint(empty, other) == other` and `disjoint(empty, empty) == empty`
 """
-struct EmptyInterval{T} <: AbstractInterval{T} end
+struct EmptyInterval{T} <: AtomicInterval{T} end
 
 """
 SingletonInterval
@@ -31,7 +38,7 @@ A type that describes single-value intervals.
 
 `SingletonInterval` objects are closed on both ends and have equal left and right limits.
 """
-struct SingletonInterval{T} <: AbstractInterval{T}
+struct SingletonInterval{T} <: AtomicInterval{T}
     value::T
 end
 
@@ -40,7 +47,7 @@ Interval
 
 A type that describes open, closed, and semi-open/semi-closed limits.
 """
-struct Interval{T} <: AbstractInterval{T}
+struct Interval{T} <: AtomicInterval{T}
     left::T
     right::T
     left_closed::Bool
@@ -52,7 +59,7 @@ LeftUnboundedInterval
 
 A type that describes an interval unbounded from the left (but bounded from the right).
 """
-struct LeftUnboundedInterval{T} <: AbstractInterval{T}
+struct LeftUnboundedInterval{T} <: AtomicInterval{T}
     right::T
     right_closed::Bool
 end
@@ -62,7 +69,7 @@ RightUnboundedInterval
 
 A type that describes an interval unbounded from the right (but bounded from the left).
 """
-struct RightUnboundedInterval{T} <: AbstractInterval{T}
+struct RightUnboundedInterval{T} <: AtomicInterval{T}
     left::T
     left_closed::Bool
 end
@@ -81,9 +88,9 @@ Like `EmptyInterval`, `UnboundedInterval` objects have some special and sometime
 4. `unbounded ∪ other == unbounded` and `unbounded ∩ other == other`
 5. `disjoint(unbounded, other) == unbounded`
 """
-struct UnboundedInterval{T} <: AbstractInterval{T} end
+struct UnboundedInterval{T} <: AtomicInterval{T} end
 
-const IntervalArray{T} = Array{<:AbstractInterval{T}} where T
+const IntervalArray{T} = Array{<:AtomicInterval{T}} where T
 """
 DisjointInterval
 
@@ -92,3 +99,6 @@ A collection of one or more strictly disjoint intervals.
 struct DisjointInterval{T} <: AbstractInterval{T}
     ivs::IntervalArray{T}
 end
+
+
+natomic(a::DisjointInterval) = length(a.ivs)
