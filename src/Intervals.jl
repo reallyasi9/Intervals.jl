@@ -76,8 +76,10 @@ function in(x, a::AbstractInterval)
     return (x <= a) && (x >= a)
 end
 
-isempty(a::AbstractInterval) = false
-issingleton(a::AbstractInterval) = false
+isempty(::AbstractInterval) = false
+issingleton(::AbstractInterval) = false
+isbounded(::AbstractInterval) = true
+isdisjoint(::AbstractInterval) = false
 
 function show(io::IO, a::AbstractInterval)
     if isempty(a)
@@ -138,6 +140,8 @@ boundedright(::EmptyInterval) = false
 (<=)(::Any, ::EmptyInterval) = false
 (>)(::Any, ::EmptyInterval) = false
 (>=)(::Any, ::EmptyInterval) = false
+isempty(::EmptyInterval) = true
+isbounded(::EmptyInterval) = false
 
 struct SingletonInterval{T} <: AbstractInterval{T}
     value::T
@@ -159,6 +163,7 @@ closedright(a::LeftUnboundedInterval) = a.right_closed
 boundedleft(a::LeftUnboundedInterval) = false
 (<)(::LeftUnboundedInterval, ::Any) = true
 (<)(::Any, ::LeftUnboundedInterval) = false
+isbounded(::LeftUnboundedInterval) = false
 
 struct RightUnboundedInterval{T} <: AbstractInterval{T}
     left::T
@@ -171,6 +176,7 @@ closedright(a::RightUnboundedInterval) = false
 boundedright(a::RightUnboundedInterval) = false
 (>)(::RightUnboundedInterval, ::Any) = true
 (>)(::Any, ::RightUnboundedInterval) = false
+isbounded(::RightUnboundedInterval) = false
 
 
 """
@@ -268,6 +274,10 @@ closedleft(a::DisjointIntervals) = closedleft(first(a))
 closedright(a::DisjointIntervals) = closedright(last(a))
 boundedleft(a::DisjointIntervals) = boundedleft(first(a))
 boundedright(a::DisjointIntervals) = boundedright(last(a))
+issingleton(a::DisjointIntervals) = length(a.ivs) == 1 && issingleton(first(a.ivs))
+isempty(a::DisjointIntervals) = length(a.ivs) == 1 && isempty(first(a.ivs))
+isbounded(a::DisjointIntervals) = isbounded(first(a.ivs)) && isbounded(last(a.ivs))
+isdisjoint(a::DisjointIntervals) = length(a.ivs) > 1
 
 # Union between an empty interval and anything is that other thing.
 union(a::AbstractInterval{T}, ::EmptyInterval{T}) where T = a
@@ -301,7 +311,15 @@ function intersect(a::AbstractInterval{T}, b::AbstractInterval{T}) where T
     interval(left=left, right=right, closed=_closebound(lc, rc))
 end
 
+# constructors
 export interval, disjoint
-export in, ==, isempty, show, union, intersect, left, right, boundedleft, boundedright, closedleft, closedright, unboundedleft, unboundedright, openleft, openright, <, <=, >, >=
+# operators
+export in, ==, <, <=, >, >=
+# queries
+export isempty, isbounded, issingleton
+# accessors
+export left, right, boundedleft, boundedright, closedleft, closedright, unboundedleft, unboundedright, openleft, openright
+# operations
+export show, union, intersect
 
 end # module
