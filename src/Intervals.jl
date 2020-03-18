@@ -4,18 +4,7 @@ import Base: in, ==, <, <=, >, >=, isempty, show, union, intersect, empty
 
 include("types.jl")
 include("constructors.jl")
-
-function left(::AbstractInterval) end
-function right(::AbstractInterval) end
-function closedleft(::AbstractInterval) end
-function closedright(::AbstractInterval) end
-function boundedleft(::AbstractInterval) true end
-function boundedright(::AbstractInterval) true end
-
-openleft(a) = !closedleft(a)
-openright(a) = !closedright(a)
-unboundedleft(a) = !boundedleft(a)
-unboundedright(a) = !boundedright(a)
+include("accessors.jl")
 
 function _closebound(l, r)
     l && r && return :both
@@ -101,15 +90,9 @@ function overlaps(a::AbstractInterval, b::AbstractInterval)
 end
 
 
-left(a::Interval) = a.left
-right(a::Interval) = a.right
-closedleft(a::Interval) = a.left_closed
-closedright(a::Interval) = a.right_closed
 
-closedleft(::EmptyInterval) = false
-closedright(::EmptyInterval) = false
-boundedleft(::EmptyInterval) = false
-boundedright(::EmptyInterval) = false
+
+
 (<)(::EmptyInterval, ::Any) = false
 (<=)(::EmptyInterval, ::Any) = false
 (>)(::EmptyInterval, ::Any) = false
@@ -121,31 +104,19 @@ boundedright(::EmptyInterval) = false
 isempty(::EmptyInterval) = true
 isbounded(::EmptyInterval) = false
 
-left(a::SingletonInterval) = a.value
-right(a::SingletonInterval) = a.value
-closedleft(a::SingletonInterval) = true
-closedright(a::SingletonInterval) = true
 
-right(a::LeftUnboundedInterval) = a.right
-closedleft(a::LeftUnboundedInterval) = false
-closedright(a::LeftUnboundedInterval) = a.right_closed
-boundedleft(a::LeftUnboundedInterval) = false
+
+
 (<)(::LeftUnboundedInterval, ::Any) = true
 (<)(::Any, ::LeftUnboundedInterval) = false
 isbounded(::LeftUnboundedInterval) = false
 
-left(a::RightUnboundedInterval) = a.left
-closedleft(a::RightUnboundedInterval) = a.left_closed
-closedright(a::RightUnboundedInterval) = false
-boundedright(a::RightUnboundedInterval) = false
+
 (>)(::RightUnboundedInterval, ::Any) = true
 (>)(::Any, ::RightUnboundedInterval) = false
 isbounded(::RightUnboundedInterval) = false
 
-closedleft(::UnboundedInterval) = false
-closedright(::UnboundedInterval) = false
-boundedleft(::UnboundedInterval) = false
-boundedright(::UnboundedInterval) = false
+
 (>)(::UnboundedInterval, ::Any) = false
 (>)(::Any, ::UnboundedInterval) = false
 (<)(::UnboundedInterval, ::Any) = false
@@ -153,12 +124,7 @@ boundedright(::UnboundedInterval) = false
 isbounded(::UnboundedInterval) = false
 in(::Any, ::UnboundedInterval) = true
 
-left(a::DisjointInterval) = left(first(a.ivs))
-right(a::DisjointInterval) = right(last(a.ivs))
-closedleft(a::DisjointInterval) = closedleft(first(a.ivs))
-closedright(a::DisjointInterval) = closedright(last(a.ivs))
-boundedleft(a::DisjointInterval) = boundedleft(first(a.ivs))
-boundedright(a::DisjointInterval) = boundedright(last(a.ivs))
+
 issingleton(a::DisjointInterval) = length(a.ivs) == 1 && issingleton(first(a.ivs))
 isempty(a::DisjointInterval) = length(a.ivs) == 1 && isempty(first(a.ivs))
 isbounded(a::DisjointInterval) = isbounded(first(a.ivs)) && isbounded(last(a.ivs))
@@ -208,11 +174,11 @@ end
 export interval, disjoint
 # operators
 export in, ==, <, <=, >, >=
-# queries
-# TODO: adjacent
-export isempty, isbounded, issingleton, overlaps
 # accessors
 export left, right, boundedleft, boundedright, closedleft, closedright, unboundedleft, unboundedright, openleft, openright, natomic
+# queries
+# TODO: adjacent
+export isempty, isbounded, issingleton, overlaps, closed, bounded
 # operations
 # TODO: complement
 # TODO: difference

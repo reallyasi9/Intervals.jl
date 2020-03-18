@@ -99,6 +99,3 @@ A collection of one or more strictly disjoint intervals.
 struct DisjointInterval{T} <: AbstractInterval{T}
     ivs::IntervalArray{T}
 end
-
-
-natomic(a::DisjointInterval) = length(a.ivs)
