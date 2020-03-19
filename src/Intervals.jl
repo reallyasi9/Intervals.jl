@@ -61,7 +61,6 @@ export left, right, boundedleft, boundedright, closedleft, closedright, unbounde
 export isempty, isbounded, issingleton
 # operations
 # TODO: complement
-# TODO: difference
-export show, union, intersect, overlaps, adjacent
+export show, union, intersect, overlaps, adjacent, difference
 
 end # module
