@@ -114,3 +114,5 @@ Returns a `DisjointInterval` object with one or more disjoint intervals represen
 function disjoint(ivs::AtomicInterval{T}...) where T
     DisjointInterval(_reduce(collect(ivs)))
 end
+
+disjoint(a::DisjointInterval) = a

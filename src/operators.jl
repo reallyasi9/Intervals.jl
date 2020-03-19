@@ -92,6 +92,68 @@ function (∈)(x, a::AbstractInterval)
     return (x ≤ a) && (x ≥ a)
 end
 
+"""
+difference(a, b)
+
+Remove interval `b` from interval `a`.  This difference is _not_ symmetric.
+
+Always returns a `DisjointInterval`, regardless of whether or not `b` overlaps `a`.
+"""
+function difference(a::AtomicInterval{T}, b::AtomicInterval{T}) where T
+    # trivial cases
+    overlaps(a, b) || return disjoint(a)
+    a ∈ b && return disjoint(EmptyInterval{T}())  # includes ==
+
+    la = left(a)
+    ra = right(a)
+    lb = left(b)
+    rb = right(b)
+
+    # simplest case: adjacent difference
+    ra == lb && return disjoint(interval(left=la, right=ra, closed=_closebound(closedleft(a), true)), interval(left=lb, right=rb, closed=_closebound(false, closedright(b))))
+    la == rb && return disjoint(interval(left=la, right=ra, closed=_closebound(true, closedright(a))), interval(left=lb, right=rb, closed=_closebound(closedleft(b), false)))
+
+    # next, overlapping of one of the limits
+    a ≤ b && return disjoint(interval(left=la, right=lb, closed=_closebound(closedleft(a), openleft(b))))
+    a ≥ b && return disjoint(interval(left=rb, right=ra, closed=_closebound(openright(b), closedright(a))))
+
+    # finally, split a
+    disjoint(interval(left=la, right=lb, closed=_closebound(closedleft(a), openleft(b))), interval(left=ra, right=rb, closed=_closebound(openright(b), closedright(a))))
+end
+
+difference(a::EmptyInterval{T}, ::AbstractInterval{T}) where T = disjoint(a)
+difference(a::AbstractInterval{T}, ::EmptyInterval{T}) where T = disjoint(a)
+difference(::AbstractInterval{T}, ::UnboundedInterval{T}) where T = disjoint(EmptyInterval{T}())
+
+difference(a::DisjointInterval{T}, b::AtomicInterval{T}) where T = disjoint(difference(iv, b) for iv in a.ivs)
+difference(a::AtomicInterval{T}, b::DisjointInterval{T}) where T = disjoint(difference(a, iv) for iv in b.ivs)
+
+function difference(a::DisjointInterval{T}, b::DisjointInterval{T}) where T
+    out = IntervalArray{T}()
+    i = 1
+    j = 1
+    while i <= length(a.ivs) && j <= length(b.ivs)
+        if a.ivs[i] < b.ivs[j]
+            push!(out, a.ivs[i])
+            i += 1
+            continue
+        elseif a.ivs[i] > b.ivs[j]
+            j += 1
+            continue
+        else
+            push!(out, difference(a.ivs[i], b.ivs[j]))
+            j += 1
+            continue
+        end
+    end
+    if i == length(a.ivs)
+        push!(out, a.ivs[i])
+    end
+    disjoint(out...)
+end
+
+(-)(a::AbstractInterval{T}, b::AbstractInterval{T}) where T = difference(a, b)
+
 (<)(a::AbstractInterval, x) = x > a
 (≤)(a::AbstractInterval, x) = x ≥ a
 (>)(a::AbstractInterval, x) = x < a
