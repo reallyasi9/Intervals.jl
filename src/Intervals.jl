@@ -7,26 +7,8 @@ include("constructors.jl")
 include("accessors.jl")
 include("queries.jl")
 include("operators.jl")
+include("operations.jl")
 
-
-function show(io::IO, a::AbstractInterval)
-    if isempty(a)
-        print(io, "()")
-    elseif issingleton(a)
-        print(io, "[$(left(a))]")
-    else
-        closedleft(a) ? print(io, '[') : print(io, '(')
-        unboundedleft(a) ? print(io, "-∞") : print(io, left(a))
-        print(",")
-        unboundedright(a) ? print(io, "+∞") : print(io, right(a))
-        closedright(a) ? print(io, ']') : print(io, ')')
-    end
-    return nothing
-end
-
-function overlaps(a::AbstractInterval, b::AbstractInterval)
-    return ((a <= b) && !(a < b)) || ((a >= b) && !(a > b))
-end
 
 
 # Union between an empty interval and anything is that other thing.
@@ -76,11 +58,10 @@ export ∈, ==, <, ≤, >, ≥
 # accessors
 export left, right, boundedleft, boundedright, closedleft, closedright, unboundedleft, unboundedright, openleft, openright, natomic, closed, bounded
 # queries
-# TODO: adjacent
-export isempty, isbounded, issingleton, overlaps
+export isempty, isbounded, issingleton
 # operations
 # TODO: complement
 # TODO: difference
-export show, union, intersect
+export show, union, intersect, overlaps, adjacent
 
 end # module
