@@ -144,3 +144,13 @@ function intersect(a::DisjointInterval{T}, b::DisjointInterval{T}) where T
     disjoint(out...)
 end
     
+"""
+collect(iv)
+
+Collect the interval or disjoint intervals expressed in `iv` into a vector of `AbstractInterval` objects.
+"""
+function collect(iv::AtomicInterval) where T
+    [iv]
+end
+
+collect(a::DisjointInterval) = a.ivs
