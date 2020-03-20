@@ -90,12 +90,11 @@ Like `EmptyInterval`, `UnboundedInterval` objects have some special and sometime
 """
 struct UnboundedInterval{T} <: AtomicInterval{T} end
 
-const IntervalArray{T} = Array{<:AtomicInterval{T}} where T
 """
 DisjointInterval
 
 A collection of one or more strictly disjoint intervals.
 """
 struct DisjointInterval{T} <: AbstractInterval{T}
-    ivs::IntervalArray{T}
+    ivs::Vector{<:AtomicInterval{T}}
 end
