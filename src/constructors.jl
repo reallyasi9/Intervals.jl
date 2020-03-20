@@ -1,5 +1,5 @@
 """
-interval(left, right, closed=:neither)
+interval(;left, right, closed=:neither)
 
 Constructor for various `AtomicInterval` types.
 
@@ -101,11 +101,11 @@ end
 """
 disjoint(iv...)
 
-Constructor for a (possibly disjoint) collection of various `AtomicInterval` types.  The type returned is always a `DisjointInterval`.
+Constructor for a (possibly disjoint) collection of various `AbstractInterval` types.  The type returned is always a `DisjointInterval`.
 
 Arguments
 =========
-`iv::AtomicInterval{T}...`: any number of `AbstractInterval` objects with the same limit type `T`.
+`iv::AbstractInterval{T}...`: any number of `AbstractInterval` objects with the same limit type `T`.
 
 Return Value
 ============
