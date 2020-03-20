@@ -6,6 +6,8 @@ isdisjoint(::AbstractInterval) = false
 isempty(::EmptyInterval) = true
 isbounded(::EmptyInterval) = false
 
+issingleton(::SingletonInterval) = true
+
 isbounded(::LeftUnboundedInterval) = false
 
 isbounded(::RightUnboundedInterval) = false
