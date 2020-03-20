@@ -215,11 +215,12 @@ using Test
 
         # two intervals spanning the space
         iv1 = interval(right=0, closed=:right)
-        iv2 = interval(left=0, closed=:left)
+        iv2 = interval(left=0)
         di = disjoint(iv1, iv2)
         @test natomic(di) == 1
         @test !isbounded(di)
         @test unboundedleft(di)
         @test unboundedright(di)
+
     end;
 end;

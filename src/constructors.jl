@@ -79,7 +79,7 @@ simplify(a::UnboundedInterval{T}, ::AtomicInterval{T}) where T = [a]
 simplify(a::AtomicInterval{T}, ::EmptyInterval{T}) where T = [a]
 simplify(::EmptyInterval{T}, b::AtomicInterval{T}) where T = [b]
 function simplify(a::LeftUnboundedInterval{T}, b::RightUnboundedInterval{T}) where T
-    overlaps(a, b) && return [UnboundedInterval{T}()]
+    (overlaps(a, b) || adjacent(a, b)) && return [UnboundedInterval{T}()]
     [a, b]
 end
 simplify(a::RightUnboundedInterval{T}, b::LeftUnboundedInterval{T}) where T = simplify(b, a)
