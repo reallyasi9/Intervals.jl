@@ -163,20 +163,27 @@ end
 
 # Special definitions
 (<)(::EmptyInterval, ::Any) = false
-(<=)(::EmptyInterval, ::Any) = false
+(≤)(::EmptyInterval, ::Any) = false
 (>)(::EmptyInterval, ::Any) = false
-(>=)(::EmptyInterval, ::Any) = false
+(≥)(::EmptyInterval, ::Any) = false
 (<)(::Any, ::EmptyInterval) = false
-(<=)(::Any, ::EmptyInterval) = false
+(≤)(::Any, ::EmptyInterval) = false
 (>)(::Any, ::EmptyInterval) = false
-(>=)(::Any, ::EmptyInterval) = false
+(≥)(::Any, ::EmptyInterval) = false
 (∈)(::Any, ::EmptyInterval) = false
 
-(<)(::LeftUnboundedInterval, ::Any) = true
+(≤)(::LeftUnboundedInterval, ::Any) = true
 (<)(::Any, ::LeftUnboundedInterval) = false
 
-(>)(::RightUnboundedInterval, ::Any) = true
+(≥)(::RightUnboundedInterval, ::Any) = true
 (>)(::Any, ::RightUnboundedInterval) = false
+
+
+(≤)(::LeftUnboundedInterval, ::RightUnboundedInterval) = true
+(<)(::RightUnboundedInterval, ::LeftUnboundedInterval) = false
+
+(≥)(::RightUnboundedInterval, ::LeftUnboundedInterval) = true
+(>)(::LeftUnboundedInterval, ::RightUnboundedInterval) = false
 
 (>)(::UnboundedInterval, ::Any) = false
 (>)(::Any, ::UnboundedInterval) = false

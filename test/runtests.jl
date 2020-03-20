@@ -192,5 +192,34 @@ using Test
         @test right(di) == 1
         @test openleft(di)
         @test openright(di)
+
+        # two non-adjacent intervals
+        iv1 = interval(left=-1, right=0, closed=:neither)
+        iv2 = interval(left=0, right=1, closed=:neither)
+        di = disjoint(iv1, iv2)
+        @test natomic(di) == 2
+        @test left(di) == -1
+        @test right(di) == 1
+        @test openleft(di)
+        @test openright(di)
+
+        # interval and empty interval
+        iv1 = interval(left=1, right=2, closed=:neither)
+        iv2 = interval(left=0, right=0, closed=:neither)
+        di = disjoint(iv1, iv2)
+        @test natomic(di) == 1
+        @test left(di) == 1
+        @test right(di) == 2
+        @test openleft(di)
+        @test openright(di)
+
+        # two intervals spanning the space
+        iv1 = interval(right=0, closed=:right)
+        iv2 = interval(left=0, closed=:left)
+        di = disjoint(iv1, iv2)
+        @test natomic(di) == 1
+        @test !isbounded(di)
+        @test unboundedleft(di)
+        @test unboundedright(di)
     end;
 end;

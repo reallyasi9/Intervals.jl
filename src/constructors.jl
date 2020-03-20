@@ -1,3 +1,5 @@
+import Base: isless
+
 """
 interval(;left, right, closed=:neither)
 
@@ -51,6 +53,10 @@ function _boundmax(a, b)
     (isnothing(a) || isnothing(b)) && return nothing
     max(a, b)
 end
+
+# arbitrary decision
+Base.isless(::Nothing, ::Any) = true
+Base.isless(::Any, ::Nothing) = false
 
 function simplify(a::AtomicInterval{T}, b::AtomicInterval{T}) where T
     !overlaps(a, b) && !adjacent(a, b) && return sort!([a, b], by = left)
