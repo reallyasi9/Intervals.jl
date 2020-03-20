@@ -18,16 +18,18 @@ end
 Two `DisjointInterval` types are equal iff all of their contained `AtomicInterval` values compare equal.
 """
 function (==)(a::DisjointInterval, b::DisjointInterval)
-    if natomic(a) != natomic(b)
-        return false
-    end
-    for i = 1:natomic(a)
-        if a.ivs[i] != b.ivs[i]
-            return false
-        end
-    end
-    true
+    natomic(a) != natomic(b) && return false
+    all(a.ivs .== b.ivs)
 end
+
+"""
+An 'AtomicInterval` and a `DisjointInterval` are equal iff the `DisjointInterval` has exactly one contained interval and it equals the `AtomicInterval`.
+"""
+function (==)(a::DisjointInterval, b::AtomicInterval)
+    natomic(a) != 1 && return false
+    a.ivs[1] == b
+end
+(==)(a::AtomicInterval, b::DisjointInterval) = b == a
 
 """
 Interval `a` compares less than interval `b` iff the entire span of `a` lies to the left of the _left limit_ of interval `b`.
