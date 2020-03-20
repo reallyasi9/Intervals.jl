@@ -6,7 +6,7 @@ function show(io::IO, a::AtomicInterval)
     else
         closedleft(a) ? print(io, '[') : print(io, '(')
         unboundedleft(a) ? print(io, "-∞") : print(io, left(a))
-        print(",")
+        print(io, ",")
         unboundedright(a) ? print(io, "+∞") : print(io, right(a))
         closedright(a) ? print(io, ']') : print(io, ')')
     end
