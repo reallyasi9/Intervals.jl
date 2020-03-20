@@ -52,40 +52,40 @@ function _boundmax(a, b)
     max(a, b)
 end
 
-function _simplify(a::AtomicInterval{T}, b::AtomicInterval{T}) where T
-    !overlaps(a, b) && return sort!([a, b])
+function simplify(a::AtomicInterval{T}, b::AtomicInterval{T}) where T
+    !overlaps(a, b) && !adjacent(a, b) && return sort!([a, b], by = left)
     la = left(a)
     lb = left(b)
     ra = right(a)
     rb = right(b)
 
-    left = _boundmin(la, lb)
-    right = _boundmax(ra, rb)
+    let left = _boundmin(la, lb), right = _boundmax(ra, rb)
 
-    lc = (la == lb) ? closedleft(a) | closedleft(b) : left == la ? closedleft(a) : closedleft(b)
-    rc = (ra == rb) ? closedright(a) | closedright(b) : right == ra ? closedright(a) : closedright(b)
+        lc = (la == lb) ? closedleft(a) | closedleft(b) : left == la ? closedleft(a) : closedleft(b)
+        rc = (ra == rb) ? closedright(a) | closedright(b) : right == ra ? closedright(a) : closedright(b)
 
-    [interval(left=left, right=right, closed=_closebound(lc, rc))]
+        return [interval(left=left, right=right, closed=_closebound(lc, rc))]
+    end
 end
 
-_simplify(::AtomicInterval{T}, b::UnboundedInterval{T}) where T = [b]
-_simplify(a::UnboundedInterval{T}, ::AtomicInterval{T}) where T = [a]
-_simplify(a::AtomicInterval{T}, ::EmptyInterval{T}) where T = [a]
-_simplify(::EmptyInterval{T}, b::AtomicInterval{T}) where T = [b]
-function _simplify(a::LeftUnboundedInterval{T}, b::RightUnboundedInterval{T}) where T
+simplify(::AtomicInterval{T}, b::UnboundedInterval{T}) where T = [b]
+simplify(a::UnboundedInterval{T}, ::AtomicInterval{T}) where T = [a]
+simplify(a::AtomicInterval{T}, ::EmptyInterval{T}) where T = [a]
+simplify(::EmptyInterval{T}, b::AtomicInterval{T}) where T = [b]
+function simplify(a::LeftUnboundedInterval{T}, b::RightUnboundedInterval{T}) where T
     overlaps(a, b) && return [UnboundedInterval{T}()]
     [a, b]
 end
-_simplify(a::RightUnboundedInterval{T}, b::LeftUnboundedInterval{T}) where T = _simplify(b, a)
+simplify(a::RightUnboundedInterval{T}, b::LeftUnboundedInterval{T}) where T = simplify(b, a)
 # TODO: simplify disjoint Intervals
 
-function _reduce(ivs::IntervalArray{T}) where T
-    sorted = sort!(ivs, by=x -> ismissing(left(x)) ? typemin(T) : left(x))
+function reduce(ivs::AbstractVector{<:AtomicInterval{T}}) where T
+    sorted = sort!(ivs, by=x -> left(x))
     a = popfirst!(sorted)
-    out = IntervalArray{T}()
+    out = Vector{AtomicInterval{T}}()
     while !isempty(sorted)
         b = popfirst!(sorted)
-        s = _simplify(a, b)
+        s = simplify(a, b)
         if length(s) == 1
             a = s[1]
             continue
@@ -111,8 +111,10 @@ Return Value
 ============
 Returns a `DisjointInterval` object with one or more disjoint intervals representing a simplified version of the arguments `iv...`.
 """
-function disjoint(ivs::AtomicInterval{T}...) where T
-    DisjointInterval(_reduce(collect(ivs)))
+function disjoint(ivs::AbstractInterval{T}...) where T
+    DisjointInterval(reduce(mapreduce(collect, vcat, ivs)))
 end
+
+disjoint(a::AtomicInterval) = DisjointInterval([a])
 
 disjoint(a::DisjointInterval) = a
