@@ -171,11 +171,18 @@ end
 (>)(::Any, ::EmptyInterval) = false
 (≥)(::Any, ::EmptyInterval) = false
 (∈)(::Any, ::EmptyInterval) = false
+(<)(::EmptyInterval, ::EmptyInterval) = false
+(≤)(::EmptyInterval, ::EmptyInterval) = false
+(>)(::EmptyInterval, ::EmptyInterval) = false
+(≥)(::EmptyInterval, ::EmptyInterval) = false
+(∈)(::EmptyInterval, ::EmptyInterval) = false
 
 (≤)(::LeftUnboundedInterval, ::Any) = true
+(≤)(::LeftUnboundedInterval, ::AbstractInterval) = true
 (<)(::Any, ::LeftUnboundedInterval) = false
 
 (≥)(::RightUnboundedInterval, ::Any) = true
+(≥)(::RightUnboundedInterval, ::AbstractInterval) = true
 (>)(::Any, ::RightUnboundedInterval) = false
 
 

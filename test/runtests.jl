@@ -151,12 +151,14 @@ using Test
         iv = interval(left=0, right=1)
         di = disjoint(iv)
         @test di == iv
+        @test natomic(di) == 1
         @test !isdisjoint(di)  # only one interval, so not disjoint!
 
         # single empty interval
         iv = interval(left=0, right=0)
         di = disjoint(iv)
         @test di == iv
+        @test natomic(di) == 1
         @test !isdisjoint(di)
         @test isempty(di)
 
@@ -164,6 +166,7 @@ using Test
         iv = interval(left=0, right=0, closed=:both)
         di = disjoint(iv)
         @test di == iv
+        @test natomic(di) == 1
         @test !isdisjoint(di)
         @test issingleton(di)
 
@@ -213,7 +216,16 @@ using Test
         @test openleft(di)
         @test openright(di)
 
-        # two intervals spanning the space
+        # two overlapping unbounded intervals
+        iv1 = interval(right=0, closed=:right)
+        iv2 = interval(left=0, closed=:left)
+        di = disjoint(iv1, iv2)
+        @test natomic(di) == 1
+        @test !isbounded(di)
+        @test unboundedleft(di)
+        @test unboundedright(di)
+
+        # two adjacent unbounded intervals
         iv1 = interval(right=0, closed=:right)
         iv2 = interval(left=0)
         di = disjoint(iv1, iv2)
@@ -222,5 +234,50 @@ using Test
         @test unboundedleft(di)
         @test unboundedright(di)
 
+        # two non-overlapping, non-adjacent unbounded intervals
+        iv1 = interval(right=0)
+        iv2 = interval(left=0)
+        di = disjoint(iv1, iv2)
+        @test natomic(di) == 2
+        @test !isbounded(di)
+        @test unboundedleft(di)
+        @test unboundedright(di)
+        @test 0 ∉ di
+
+        # many intervals
+        iv1 = interval(right=-1)
+        iv2 = interval(left=-2, right=0)
+        iv3 = interval(left=0, right=1, closed=:right)
+        iv4 = interval(left=2, right=2, closed=:both)
+        iv5 = interval(left=2, right=2, closed=:neither)
+        di = disjoint(iv1, iv2, iv3, iv4, iv5)
+        @test natomic(di) == 3
+        @test !isbounded(di)
+        @test unboundedleft(di)
+        @test right(di) == 2
+        @test closedright(di)
+
+        # single disjoint interval
+        iv1 = interval(left=0, right=1)
+        iv2 = interval(left=1, right=2)
+        di1 = disjoint(iv1, iv2)
+        di2 = disjoint(di1)
+        @test di2 == di1
+
+        # many disjoint intervals
+        iv1 = interval(left=0, right=1)
+        iv2 = interval(left=1, right=2)
+        iv3 = interval(left=3, right=3, closed=:both)
+        iv4 = interval(left=4, right=4, closed=:both)
+        iv5 = interval(left=5)
+        di1 = disjoint(iv1, iv2)
+        di2 = disjoint(iv3)
+        di3 = disjoint(di1, iv4)
+        di4 = disjoint(di2, di3, iv5)
+        @test isdisjoint(di4)
+        @test natomic(di4) == 5
+        @test unboundedright(di4)
+        @test boundedleft(di4)
+        @test left(di4) == 0
     end;
 end;
