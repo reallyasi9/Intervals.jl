@@ -1,5 +1,3 @@
-import Base: hash, widen
-
 function show(io::IO, a::AtomicInterval)
     if isempty(a)
         print(io, "()")
@@ -180,8 +178,8 @@ collect(iv)
 
 Collect the interval or disjoint intervals expressed in `iv` into a vector of `AbstractInterval` objects.
 """
-function collect(iv::AtomicInterval) where T
+function collect(iv::AtomicInterval)
     [iv]
 end
 
-collect(a::DisjointInterval) = a.ivs
+collect(a::DisjointInterval) = copy(a.ivs)

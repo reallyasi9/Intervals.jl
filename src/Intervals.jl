@@ -1,6 +1,6 @@
 module Intervals
 
-import Base: ∈, ==, <, ≤, >, ≥, -, isempty, show, union, intersect, empty
+import Base: ∈, ==, <, ≤, >, ≥, -, isempty, show, union, intersect, empty, hash, widen
 
 include("types.jl")
 include("constructors.jl")
