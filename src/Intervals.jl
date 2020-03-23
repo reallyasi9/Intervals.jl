@@ -20,6 +20,6 @@ export isempty, isbounded, issingleton, isdisjoint
 # constructors
 export interval, disjoint
 # operations
-export show, union, intersect, overlaps, adjacent, complement
+export show, union, intersect, overlaps, adjacent, complement, hash
 
 end # module

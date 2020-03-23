@@ -1,3 +1,5 @@
+import Base: hash
+
 function show(io::IO, a::AtomicInterval)
     if isempty(a)
         print(io, "()")
@@ -15,6 +17,22 @@ end
 
 function show(io::IO, a::DisjointInterval)
     join(io, a.ivs, " | ")
+end
+
+function hash(a::AtomicInterval, h::UInt)
+    h = hash(left(a), h)
+    h = hash(right(a), h)
+    h = hash(closedleft(a), h)
+    h = hash(closedright(a), h)
+    h = hash(boundedleft(a), h)
+    hash(boundedright(a), h)
+end
+
+function hash(a::DisjointInterval, h::UInt)
+    for iv in collect(a)
+        h = hash(iv, h)
+    end
+    h
 end
 
 """
