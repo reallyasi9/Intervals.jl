@@ -2,6 +2,60 @@ using Intervals
 using Test
 
 @testset "Intervals.jl" begin
+    @testset "EmptyInterval" begin
+        iv = EmptyInterval{Int}()
+        @test isnothing(left(iv))
+        @test isnothing(right(iv))
+        @test openleft(iv)
+        @test openright(iv)
+        @test unboundedleft(iv)
+        @test unboundedright(iv)
+        @test isempty(iv)
+        @test !issingleton(iv)
+        @test !isbounded(iv)
+        @test !isdisjoint(iv)
+
+        # All empty intervals are equal, regardless of domain.
+        iv2 = EmptyInterval{Float64}()
+        @test iv == iv2
+
+        # Nothing is greater than, less than, or in an empty interval
+        @test !(0 < iv)
+        @test !(0 > iv)
+        @test !(0 ≤ iv)
+        @test !(0 ≥ iv)
+
+        @test !(iv2 < iv)
+        @test !(iv2 > iv)
+        @test !(iv2 ≤ iv)
+        @test !(iv2 ≥ iv)
+        @test !(iv2 ∈ iv)
+
+        @test !(iv < iv)
+        @test !(iv > iv)
+        @test !(iv ≤ iv)
+        @test !(iv ≥ iv)
+        @test !(iv ∈ iv)
+    end
+
+    @testset "EmptyInterval" begin
+        iv = EmptyInterval{Int}()
+        @test isnothing(left(iv))
+        @test isnothing(right(iv))
+        @test openleft(iv)
+        @test openright(iv)
+        @test unboundedleft(iv)
+        @test unboundedright(iv)
+        @test isempty(iv)
+        @test !issingleton(iv)
+        @test !isbounded(iv)
+        @test !isdisjoint(iv)
+
+        # All empty intervals are equal, regardless of domain.
+        iv2 = EmptyInterval{Float64}()
+        @test iv == iv2
+    end
+
     @testset "interval" begin
         # standard interval, open both sides
         iv = interval(left=0, right=1)
