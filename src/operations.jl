@@ -1,4 +1,4 @@
-import Base: hash
+import Base: hash, widen
 
 function show(io::IO, a::AtomicInterval)
     if isempty(a)
@@ -34,6 +34,9 @@ function hash(a::DisjointInterval, h::UInt)
     end
     h
 end
+
+# necessary for proper hash functioning
+widen(a::AbstractInterval) = a
 
 """
 overlaps(a, b)
