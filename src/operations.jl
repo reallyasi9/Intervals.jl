@@ -52,13 +52,16 @@ end
 
 adjacent(::EmptyInterval, ::AbstractInterval) = false
 adjacent(::AbstractInterval, ::EmptyInterval) = false
+adjacent(::EmptyInterval, ::EmptyInterval) = false
 adjacent(::UnboundedInterval, ::AbstractInterval) = false
 adjacent(::AbstractInterval, ::UnboundedInterval) = false
+adjacent(::UnboundedInterval, ::UnboundedInterval) = false
 
 """
 complement(a)
 
-Returns a `DisjointInterval` that represents the union of intervals that are adjacent to the interval `a` and, with `a`, form an unbounded interval across the entire domain.
+Returns a `DisjointInterval` that represents the union of intervals that are adjacent to the interval `a` and, with `a`, form an unbounded interval across the entire domain of `T`.
+That is, `union(a, complement(a)) == disjoint(UnboundedInterval{T}())`
 """
 function complement(a::AbstractInterval{T}) where T
     difference(UnboundedInterval{T}(), a)
@@ -78,10 +81,12 @@ union(a::AbstractInterval{T}, b::AbstractInterval{T}) where T = disjoint(a, b)
 # Union between an empty interval and anything is that other thing.
 union(a::AbstractInterval{T}, ::EmptyInterval{T}) where T = disjoint(a)
 union(::EmptyInterval{T}, b::AbstractInterval{T}) where T = disjoint(b)
+union(::EmptyInterval{T}, b::EmptyInterval{T}) where T = disjoint(a)
 
 # Union between an unbounded interval and anything is unbounded
 union(::AbstractInterval{T}, b::UnboundedInterval{T}) where T = disjoint(b)
 union(a::UnboundedInterval{T}, ::AbstractInterval{T}) where T = disjoint(a)
+union(a::UnboundedInterval{T}, ::UnboundedInterval{T}) where T = disjoint(a)
 
 
 """
@@ -107,21 +112,26 @@ end
 
 # Intersection between an empty and anything is empty.
 intersect(::EmptyInterval{T}, ::AbstractInterval{T}) where T = disjoint(EmptyInterval{T}())
-intersect(::AbstractArray{T}, ::EmptyInterval{T}) where T = disjoint(EmptyInterval{T}())
+intersect(::AbstractInterval{T}, ::EmptyInterval{T}) where T = disjoint(EmptyInterval{T}())
+intersect(::EmptyInterval{T}, ::EmptyInterval{T}) where T = disjoint(EmptyInterval{T}())
 
 # Intersection between unbounded and anything is that thing.
 intersect(::UnboundedInterval{T}, b::AbstractInterval{T}) where T = disjoint(b)
-intersect(a::AbstractArray{T}, ::UnboundedInterval{T}) where T = disjoint(a)
+intersect(a::AbstractInterval{T}, ::UnboundedInterval{T}) where T = disjoint(a)
+intersect(a::UnboundedInterval{T}, ::UnboundedInterval{T}) where T = disjoint(a)
 
 # Intersection between a singleton and anything is either the singleton or empty.
 intersect(a::AbstractInterval{T}, b::SingletonInterval{T}) where T = overlaps(a, b) ? disjoint(b) : disjoint(EmptyInterval{T}())
 intersect(a::SingletonInterval{T}, b::AbstractInterval{T}) where T = intersect(b, a)
+intersect(a::SingletonInterval{T}, b::SingletonInterval{T}) where T = a.value == b.value ? disjoint(a) : disjoint(EmptyInterval{T}())
 
 intersect(a::DisjointInterval{T}, b::AtomicInterval{T}) where T = disjoint(intersect(iv, b) for iv in a.ivs)
 intersect(a::AtomicInterval{T}, b::DisjointInterval{T}) where T = intersect(b, a)
 
 function intersect(a::DisjointInterval{T}, b::DisjointInterval{T}) where T
-    out = IntervalArray{T}()
+    # Because DisjointIntervals are constructed with intervals in lexigraphical order,
+    # we only have to iterate over minimum(length(a.ivs), length(b.ivs)) to find all intersections.
+    out = Vector{AbstractInterval{T}}()
     i = 1
     j = 1
     while i <= length(a.ivs) && j <= length(b.ivs)
