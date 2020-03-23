@@ -9,6 +9,8 @@ include("queries.jl")
 include("operators.jl")
 include("operations.jl")
 
+# types
+export AbstractInterval, AtomicInterval, DisjointInterval, EmptyInterval, SingletonInterval, LeftUnboundedInterval, RightUnboundedInterval, Interval, UnboundedInterval
 # operators
 export ∈, ==, <, ≤, >, ≥, -, difference
 # accessors
