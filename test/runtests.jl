@@ -126,6 +126,50 @@ using Dates
         @test (iv ∈ iv)
     end
 
+    @testset "RightUnboundedInterval" begin
+        x = ℯ
+        iv = RightUnboundedInterval(x, false)
+        @test left(iv) == x
+        @test isnothing(right(iv))
+        @test openleft(iv)
+        @test openright(iv)
+        @test boundedleft(iv)
+        @test unboundedright(iv)
+        @test !isempty(iv)
+        @test !issingleton(iv)
+        @test !isbounded(iv)
+        @test !isdisjoint(iv)
+
+        # Nothing is greater than the interval
+        @test (x < iv)
+        @test !(x > iv)
+        @test (x ≤ iv)
+        @test !(x ≥ iv)
+        @test !(x ∈ iv)
+
+        # The limit is only in the interval if the limit is closed
+        iv2 = RightUnboundedInterval(x, true)
+        @test !(x < iv2)
+        @test !(x > iv2)
+        @test (x ≤ iv2)
+        @test (x ≥ iv2)
+        @test (x ∈ iv2)
+
+        @test !(iv2 < iv)
+        @test !(iv2 > iv)
+        @test (iv2 ≤ iv)
+        @test !(iv2 ≥ iv)
+        @test !(iv2 ∈ iv)
+        @test (iv ∈ iv2)
+
+        # Self-comparisons are logical
+        @test !(iv < iv)
+        @test !(iv > iv)
+        @test (iv ≤ iv)
+        @test (iv ≥ iv)
+        @test (iv ∈ iv)
+    end
+
     @testset "interval" begin
         # standard interval, open both sides
         iv = interval(left=0, right=1)
