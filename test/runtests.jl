@@ -1,5 +1,6 @@
 using Intervals
 using Test
+using Dates
 
 @testset "Intervals.jl" begin
     @testset "EmptyInterval" begin
@@ -38,22 +39,47 @@ using Test
         @test !(iv ∈ iv)
     end
 
-    @testset "EmptyInterval" begin
-        iv = EmptyInterval{Int}()
-        @test isnothing(left(iv))
-        @test isnothing(right(iv))
-        @test openleft(iv)
-        @test openright(iv)
-        @test unboundedleft(iv)
-        @test unboundedright(iv)
-        @test isempty(iv)
-        @test !issingleton(iv)
-        @test !isbounded(iv)
+    @testset "SingletonInterval" begin
+        dt = Date(1970, 1, 1)
+        iv = SingletonInterval(dt)
+        @test left(iv) == dt
+        @test right(iv) == dt
+        @test closedleft(iv)
+        @test closedright(iv)
+        @test boundedleft(iv)
+        @test boundedright(iv)
+        @test !isempty(iv)
+        @test issingleton(iv)
+        @test isbounded(iv)
         @test !isdisjoint(iv)
 
-        # All empty intervals are equal, regardless of domain.
-        iv2 = EmptyInterval{Float64}()
-        @test iv == iv2
+        # Only the value itself is in a singleton interval
+        @test !(dt < iv)
+        @test !(dt > iv)
+        @test (dt ≤ iv)
+        @test (dt ≥ iv)
+        @test (dt ∈ iv)
+
+        dt2 = DateTime(dt) + Second(1)
+        @test !(dt2 < iv)
+        @test (dt2 > iv)
+        @test !(dt2 ≤ iv)
+        @test (dt2 ≥ iv)
+        @test !(dt2 ∈ iv)
+
+        iv2 = SingletonInterval(dt2)
+        @test !(iv2 < iv)
+        @test (iv2 > iv)
+        @test !(iv2 ≤ iv)
+        @test (iv2 ≥ iv)
+        @test !(iv2 ∈ iv)
+
+        # Self-comparisons are logical
+        @test !(iv < iv)
+        @test !(iv > iv)
+        @test (iv ≤ iv)
+        @test (iv ≥ iv)
+        @test (iv ∈ iv)
     end
 
     @testset "interval" begin
