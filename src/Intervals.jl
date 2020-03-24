@@ -1,6 +1,6 @@
 module Intervals
 
-import Base: ∈, ==, <, ≤, >, ≥, -, isempty, show, union, intersect, empty, hash, widen
+import Base: ∈, ==, <, ≤, >, ≥, -, isempty, show, union, intersect, empty, hash, widen, collect
 
 include("types.jl")
 include("constructors.jl")
@@ -20,6 +20,6 @@ export isempty, isbounded, issingleton, isdisjoint
 # constructors
 export interval, disjoint
 # operations
-export show, union, intersect, overlaps, adjacent, complement, hash, widen
+export show, union, intersect, overlaps, adjacent, complement, hash, widen, collect
 
 end # module

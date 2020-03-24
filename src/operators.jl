@@ -70,7 +70,7 @@ end
 Value `x` compares less than or equal to interval `a` iff it lies to the left of the _right limit_ (inclusive if closed) of interval `a`.
 """
 function (≤)(x, a::AbstractInterval)
-    return boundedright(a) && ((x < right(a)) || ((closedright(a) && (x == right(a)))))
+    return unboundedright(a) || ((x < right(a)) || ((closedright(a) && (x == right(a)))))
 end
 
 """
@@ -84,7 +84,7 @@ end
 Value `x` compares less than or equal to interval `a` iff it lies to the right of the _left limit_ (inclusive if closed) of interval `a`.
 """
 function (≥)(x, a::AbstractInterval)
-    return boundedleft(a) && ((left(a) < x) || ((closedleft(a) && (x == left(a)))))
+    return unboundedleft(a) || ((left(a) < x) || ((closedleft(a) && (x == left(a)))))
 end
 
 """
@@ -177,14 +177,15 @@ end
 (≥)(::EmptyInterval, ::EmptyInterval) = false
 (∈)(::EmptyInterval, ::EmptyInterval) = false
 
-(≤)(::LeftUnboundedInterval, ::Any) = true
-(≤)(::LeftUnboundedInterval, ::AbstractInterval) = true
 (<)(::Any, ::LeftUnboundedInterval) = false
+(<)(::AbstractInterval, ::LeftUnboundedInterval) = false
+(≥)(::Any, ::LeftUnboundedInterval) = true
+(≥)(::AbstractInterval, ::LeftUnboundedInterval) = true
 
-(≥)(::RightUnboundedInterval, ::Any) = true
-(≥)(::RightUnboundedInterval, ::AbstractInterval) = true
 (>)(::Any, ::RightUnboundedInterval) = false
-
+(>)(::AbstractInterval, ::RightUnboundedInterval) = false
+(≤)(::Any, ::RightUnboundedInterval) = true
+(≤)(::AbstractInterval, ::RightUnboundedInterval) = true
 
 (≤)(::LeftUnboundedInterval, ::RightUnboundedInterval) = true
 (<)(::RightUnboundedInterval, ::LeftUnboundedInterval) = false
@@ -197,3 +198,5 @@ end
 (<)(::UnboundedInterval, ::Any) = false
 (<)(::Any, ::UnboundedInterval) = false
 (∈)(::Any, ::UnboundedInterval) = true
+
+(∈)(a::Any, b::DisjointInterval) = any(x -> a ∈ x, collect(b))
