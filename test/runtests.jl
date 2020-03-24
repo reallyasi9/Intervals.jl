@@ -32,11 +32,13 @@ using Dates
         @test !(iv2 ≥ iv)
         @test !(iv2 ∈ iv)
 
+        # self-comparisons are not logical
         @test !(iv < iv)
         @test !(iv > iv)
         @test !(iv ≤ iv)
         @test !(iv ≥ iv)
         @test !(iv ∈ iv)
+        @test (iv == iv)
     end
 
     @testset "SingletonInterval" begin
@@ -79,6 +81,7 @@ using Dates
         @test !(iv > iv)
         @test (iv ≤ iv)
         @test (iv ≥ iv)
+        @test (iv == iv)
         @test (iv ∈ iv)
     end
 
@@ -123,6 +126,7 @@ using Dates
         @test !(iv > iv)
         @test (iv ≤ iv)
         @test (iv ≥ iv)
+        @test (iv == iv)
         @test (iv ∈ iv)
     end
 
@@ -167,6 +171,7 @@ using Dates
         @test !(iv > iv)
         @test (iv ≤ iv)
         @test (iv ≥ iv)
+        @test (iv == iv)
         @test (iv ∈ iv)
     end
 
@@ -196,6 +201,119 @@ using Dates
         @test !(iv > iv)
         @test (iv ≤ iv)
         @test (iv ≥ iv)
+        @test (iv == iv)
+        @test (iv ∈ iv)
+    end
+
+    @testset "Interval" begin
+        # [-1, 1)
+        iv = Interval(-1, 1, true, false)
+        @test left(iv) == -1
+        @test right(iv) == 1
+        @test closedleft(iv)
+        @test openright(iv)
+        @test boundedleft(iv)
+        @test boundedright(iv)
+        @test !isempty(iv)
+        @test !issingleton(iv)
+        @test isbounded(iv)
+        @test !isdisjoint(iv)
+
+        # test limits
+        @test !(-1 < iv)
+        @test !(-1 > iv)
+        @test !(1 < iv)
+        @test (1 > iv)
+        @test (-1 ≤ iv)
+        @test (-1 ≥ iv)
+        @test !(1 ≤ iv)
+        @test (1 ≥ iv)
+        @test (-1 ∈ iv)
+        @test !(1 ∈ iv)
+
+        # test strictly <
+        # [-3, -1)
+        ivlt = Interval(-3, -1, true, false)
+        @test (ivlt < iv)
+        @test (ivlt ≤ iv)
+        @test !(ivlt == iv)
+        @test !(ivlt ≥ iv)
+        @test !(ivlt > iv)
+        @test !(ivlt ∈ iv)
+        @test !(iv ∈ ivlt)
+
+        # test <=
+        # [-3, 1)
+        ivle = Interval(-3, 1, true, false)
+        @test !(ivle < iv)
+        @test (ivle ≤ iv)
+        @test !(ivle == iv)
+        @test !(ivle ≥ iv)
+        @test !(ivle > iv)
+        @test !(ivle ∈ iv)
+        @test (iv ∈ ivle)
+
+        # test ==
+        # [-1, 1)
+        iveq = Interval(-1, 1, true, false)
+        @test !(iveq < iv)
+        @test (iveq ≤ iv)
+        @test (iveq == iv)
+        @test (iveq ≥ iv)
+        @test !(iveq > iv)
+        @test (iveq ∈ iv)
+        @test (iv ∈ iveq)
+
+        # test >=
+        # [-1, 1]
+        ivge = Interval(-1, 1, true, true)
+        @test !(ivge < iv)
+        @test !(ivge ≤ iv)
+        @test !(ivge == iv)
+        @test (ivge ≥ iv)
+        @test !(ivge > iv)
+        @test !(ivge ∈ iv)
+        @test (iv ∈ ivge)
+
+        # test strictly >
+        # [1, 2)
+        ivgt = Interval(1, 2, true, false)
+        @test !(ivgt < iv)
+        @test !(ivgt ≤ iv)
+        @test !(ivgt == iv)
+        @test (ivgt ≥ iv)
+        @test (ivgt > iv)
+        @test !(ivgt ∈ iv)
+        @test !(iv ∈ ivgt)
+
+        # test strict subset
+        # (-1, 0)
+        ivsub = Interval(-1, 0, false, false)
+        @test !(ivsub < iv)
+        @test (ivsub ≤ iv)
+        @test !(ivsub == iv)
+        @test (ivsub ≥ iv)
+        @test !(ivsub > iv)
+        @test (ivsub ∈ iv)
+        @test !(iv ∈ ivsub)
+
+        # test strict superset
+        # [-2, 1]
+        ivsup = Interval(-2, 1, true, true)
+        @test !(ivsup < iv)
+        @test !(ivsup ≤ iv)
+        @test !(ivsup == iv)
+        @test !(ivsup ≥ iv)
+        @test !(ivsup > iv)
+        @test !(ivsup ∈ iv)
+        @test (iv ∈ ivsup)
+
+        # Self-comparisons are logical
+        @test !(iv < iv)
+        @test !(iv > iv)
+        @test (iv ≤ iv)
+        @test (iv ≥ iv)
+        @test (iv == iv)
         @test (iv ∈ iv)
     end
 

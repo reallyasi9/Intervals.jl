@@ -49,7 +49,7 @@ end
 Interval `a` compares greater than interval `b` iff the entire span of `a` lies to the right of the _right limit_ of interval `b`.
 """
 function (>)(a::AbstractInterval, b::AbstractInterval)
-    return boundedleft(a) && boundedright(b) && ((right(b) < left(a)) || ((openleft(a) || openright(b)) && (right(a) == left(b))))
+    return boundedleft(a) && boundedright(b) && ((right(b) < left(a)) || ((openleft(a) || openright(b)) && (left(a) == right(b))))
 end
 
 """
