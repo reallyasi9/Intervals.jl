@@ -195,8 +195,18 @@ end
 
 (>)(::UnboundedInterval, ::Any) = false
 (>)(::Any, ::UnboundedInterval) = false
+(>)(::UnboundedInterval, ::UnboundedInterval) = false
 (<)(::UnboundedInterval, ::Any) = false
 (<)(::Any, ::UnboundedInterval) = false
+(<)(::UnboundedInterval, ::UnboundedInterval) = false
+(≥)(::Any, ::UnboundedInterval) = true
+(≥)(::UnboundedInterval, ::Any) = false
+(≥)(::UnboundedInterval, ::LeftUnboundedInterval) = true
+(≥)(::UnboundedInterval, ::UnboundedInterval) = true
+(≤)(::Any, ::UnboundedInterval) = true
+(≤)(::UnboundedInterval, ::Any) = false
+(≤)(::UnboundedInterval, ::RightUnboundedInterval) = true
+(≤)(::UnboundedInterval, ::UnboundedInterval) = true
 (∈)(::Any, ::UnboundedInterval) = true
 
 (∈)(a::Any, b::DisjointInterval) = any(x -> a ∈ x, collect(b))

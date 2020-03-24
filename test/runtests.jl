@@ -170,6 +170,35 @@ using Dates
         @test (iv ∈ iv)
     end
 
+    @testset "UnboundedInterval" begin
+        iv = UnboundedInterval{Rational{Int128}}()
+        @test isnothing(left(iv))
+        @test isnothing(right(iv))
+        @test openleft(iv)
+        @test openright(iv)
+        @test unboundedleft(iv)
+        @test unboundedright(iv)
+        @test !isempty(iv)
+        @test !issingleton(iv)
+        @test !isbounded(iv)
+        @test !isdisjoint(iv)
+
+        # Nothing is greater than, less than, or outside the interval
+        x = 12345//6789
+        @test !(x < iv)
+        @test !(x > iv)
+        @test (x ≤ iv)
+        @test (x ≥ iv)
+        @test (x ∈ iv)
+
+        # Self-comparisons are logical
+        @test !(iv < iv)
+        @test !(iv > iv)
+        @test (iv ≤ iv)
+        @test (iv ≥ iv)
+        @test (iv ∈ iv)
+    end
+
     @testset "interval" begin
         # standard interval, open both sides
         iv = interval(left=0, right=1)
